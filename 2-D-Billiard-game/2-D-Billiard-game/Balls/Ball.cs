@@ -13,9 +13,10 @@ namespace _2_D_Billiard_game.Balls
     {
         public CircleShape Shape { get; }
         public Vector2f Velocity { get; set; }
-        private const float Friction = 0.9994f; // Коэффициент затухания (0 < Friction < 1)
+        private const float Friction = 0.9994f; // 9994f
+        private const float Friction2 = 0.00028f; // 9994f
 
-        protected Ball(float x, float y, float radius, Color color)
+        protected Ball(float x, float y, float radius, Color color) // Init params
         {
             Shape = new CircleShape(radius)
             {
@@ -27,34 +28,36 @@ namespace _2_D_Billiard_game.Balls
 
         public virtual void Update(float deltaTime, RectangleShape fieldShape)
         {
-            Shape.Position += Velocity * deltaTime;
-            // Применение фрикции
-            Velocity *= Friction;
+            Shape.Position += Velocity * deltaTime; // Update position, distance=speed*time          
+            float velo = VectorExtensions.Length(Velocity);
+            velo -= velo*Friction2;
+            Velocity = VectorExtensions.Normalize(Velocity) * velo;
+            //Velocity *= Friction;// Friction
 
-            // Проверка на столкновение с границами стола
+            // Left and right
             if (Shape.Position.X < fieldShape.Position.X)
             {
-                Shape.Position = new Vector2f(fieldShape.Position.X, Shape.Position.Y); // Возврат в предел
-                Velocity = new Vector2f(-Velocity.X, Velocity.Y); // Отскок по X
+                Shape.Position = new Vector2f(fieldShape.Position.X, Shape.Position.Y);
+                Velocity = new Vector2f(-Velocity.X, Velocity.Y); 
             }
             else if (Shape.Position.X + Shape.Radius * 2 > fieldShape.Position.X + fieldShape.Size.X)
             {
-                Shape.Position = new Vector2f(fieldShape.Position.X + fieldShape.Size.X - Shape.Radius * 2, Shape.Position.Y); // Возврат в предел
-                Velocity = new Vector2f(-Velocity.X, Velocity.Y); // Отскок по X
+                Shape.Position = new Vector2f(fieldShape.Position.X + fieldShape.Size.X - Shape.Radius * 2, Shape.Position.Y); 
+                Velocity = new Vector2f(-Velocity.X, Velocity.Y); 
             }
-
+            // Up and down
             if (Shape.Position.Y < fieldShape.Position.Y)
             {
-                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Position.Y); // Возврат в предел
-                Velocity = new Vector2f(Velocity.X, -Velocity.Y); // Отскок по Y
+                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Position.Y);
+                Velocity = new Vector2f(Velocity.X, -Velocity.Y); 
             }
             else if (Shape.Position.Y + Shape.Radius * 2 > fieldShape.Position.Y + fieldShape.Size.Y)
             {
-                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Position.Y + fieldShape.Size.Y - Shape.Radius * 2); // Возврат в предел
-                Velocity = new Vector2f(Velocity.X, -Velocity.Y); // Отскок по Y
+                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Position.Y + fieldShape.Size.Y - Shape.Radius * 2); 
+                Velocity = new Vector2f(Velocity.X, -Velocity.Y);
             }
-
-
+ 
+            // Friction check
             if (Velocity.X * Velocity.X + Velocity.Y * Velocity.Y < 0.01f)
             {
                 Velocity = new Vector2f(0, 0);
@@ -73,7 +76,7 @@ namespace _2_D_Billiard_game.Balls
                 (Shape.Position.Y - other.Shape.Position.Y) * (Shape.Position.Y - other.Shape.Position.Y)
             );
 
-            return distance < (Shape.Radius + other.Shape.Radius);
+            return distance <= (Shape.Radius + other.Shape.Radius);
         }
     }
 }

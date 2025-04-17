@@ -7,45 +7,83 @@ using _2_D_Billiard_game.BilliardField;
 
 class Program
 {
+    private static void HandleKeyboardInput(Field field)
+    {
+        // Rotating
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+        {
+            field.RotateCue(-0.01f); 
+        }
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+        {
+            field.RotateCue(0.01f); 
+        }
+        // Power
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
+        {
+            field.IncreaseHitStrength(0.1f); 
+        }
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
+        {
+            field.DecreaseHitStrength(0.1f); 
+        }
+        // Hit
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Enter))
+        {
+            field.PerformHit(); 
+        }
+    }
     static void Main()
     {
-        // Создание окна
-        var window = new RenderWindow(new VideoMode(1500, 800), "Billiard Game");
+        // Init window
+        var window = new RenderWindow(new VideoMode(1920, 1080), "Billiard Game");
         var field = new Field(1200, 600);
         
+        // Background
+        Texture backgroundTexture = new Texture("Resources/background.jpg");
+        Sprite backgroundSprite = new Sprite(backgroundTexture);
+
+        // Icon
+        Image icon = new Image("Resources/Moka.jpg");
+        window.SetIcon(icon.Size.X, icon.Size.Y, icon.Pixels);
+
         window.Closed += (sender, e) => window.Close();
-        // Часы
+
+        // Clock to update pos
         Clock clock = new Clock();
-        // Основной цикл
+
+        // Music
+        SoundBuffer gamsondbuf = new SoundBuffer("Resources/temporary.mp3");
+        Sound gameMusic = new Sound(gamsondbuf);
+        gameMusic.Volume = 10;
+        gameMusic.Play();
 
         while (window.IsOpen)
         {
-            // Обработка событий
             window.DispatchEvents();
 
             float deltaTime = clock.Restart().AsSeconds();
 
-            window.MouseButtonPressed += (sender, e) =>
+            /*window.MouseButtonPressed += (sender, e) =>
             {
                 if (e.Button == Mouse.Button.Left)
                 {
                     field.OnMouseClick(new Vector2i(e.X, e.Y));
                 }
-            };
+            };*/
 
+            HandleKeyboardInput(field);
 
-            field.Update(deltaTime);
+            field.Update(deltaTime); // fieldUpdate-->BallsUpdate & CollisionCheck
 
-            // Очистка окна
-            window.Clear(Color.Black);
-
+            window.Draw(backgroundSprite);
+            
             field.Draw(window);
-
-            // Отображение содержимого окна
+           
             window.Display();
 
-
-
         }
+
     }
+    
 }
