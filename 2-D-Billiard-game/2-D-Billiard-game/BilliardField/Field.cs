@@ -75,19 +75,26 @@ namespace _2_D_Billiard_game.BilliardField
             _balls = new List<Ball>
         {
 
-            new WhiteBall(-50+posx + width / 2, posy-15 + height / 2, 15),
-            new DefaultBall(posx + width / 2, posy-15 + height / 2, 15, new Color(0,0,255)), 
-            new DefaultBall(posx+30 + width / 2, posy-45 + height / 2, 15, new Color(200,255,50)), 
-            new DefaultBall(posx+30 + width / 2, posy+15 + height / 2, 15, new Color(255, 0, 0)), 
-            new DefaultBall(posx+60 + width / 2, posy-75 + height / 2, 15, new Color(255, 255, 0)), 
-            new DefaultBall(posx+60 + width / 2, posy+45 + height / 2, 15, new Color(0, 255, 255)), 
-            new DefaultBall(posx+80 + width / 2, posy-100 + height / 2, 15, new Color(255, 0, 255)), 
-            new DefaultBall(posx+70 + width / 2, posy+100 +  height / 2, 15, new Color(0,0,255)), 
-            new DefaultBall(posx+200 + width / 2, posy+200 + height / 2, 15, new Color(125,0,0)), 
-            new DefaultBall(posx+100 + width / 2, posy-159 + height / 2, 15, new Color(0, 125, 0)), 
-            new DefaultBall(posx-200 + width / 2, posy+60 + height / 2, 15, new Color(0, 0, 125)), 
-            new DefaultBall(posx + 150 + width / 2, posy-200 + height / 2, 15, new Color(0, 125, 255)), 
-            new DefaultBall(posx - 100 + width / 2, posy + height / 2, 15, new Color(255, 0, 125))         
+            new CueBall(-200+posx + width / 2, posy-15 + height / 2, 15),
+            new RedBall(posx + width / 2, posy-15 + height / 2, 15), 
+            new OrangeBall((posx + width / 2)+35,(posy-15 + height / 2),15),
+            new OrangeBall((posx + width / 2)+35,(posy-15 + height / 2)+35,15),
+            new OrangeBall((posx + width / 2)+35,(posy-15 + height / 2)-35,15),
+            new RedBall((posx + width / 2)+70,(posy-15 + height / 2)+70,15),
+            new RedBall((posx + width / 2)+70,(posy-15 + height / 2)+35,15),
+            new BlackBall((posx + width / 2)+70,(posy-15 + height / 2),15),
+            new RedBall((posx + width / 2)+70,(posy-15 + height / 2)-35,15),
+            new RedBall((posx + width / 2)+70,(posy-15 + height / 2)-70,15),
+            new RedBall((posx + width / 2)+105,(posy-15 + height / 2)-90,15),
+            new OrangeBall((posx + width / 2)+105,(posy-15 + height / 2)-55,15),
+            new OrangeBall((posx + width / 2)+105,(posy-15 + height / 2)-20,15),
+            new RedBall((posx + width / 2)+105,(posy-15 + height / 2)+15,15),
+            new OrangeBall((posx + width / 2)+105,(posy-15 + height / 2)+50,15),
+            new OrangeBall((posx + width / 2)+105,(posy-15 + height / 2)+90,15),
+
+
+
+
         };
         }
         public void Update(float deltaTime)
@@ -179,7 +186,7 @@ namespace _2_D_Billiard_game.BilliardField
 
         private void DrawCue(RenderWindow window)
         {
-            Vector2f cueStart = _balls.OfType<WhiteBall>().FirstOrDefault().Shape.Position;
+            Vector2f cueStart = _balls.OfType<CueBall>().FirstOrDefault().Shape.Position;
             cueStart.X += 15;
             cueStart.Y += 15;
 
@@ -212,7 +219,7 @@ namespace _2_D_Billiard_game.BilliardField
 
         public void PerformHit()
         {
-            Ball whiteBall = _balls.Find(b => b is WhiteBall); // Need to change
+            Ball whiteBall = _balls.Find(b => b is CueBall); // Need to change
             if (whiteBall != null)
             {
                 Vector2f hitDirection = new Vector2f((float)Math.Cos((float)(Math.PI / 180) * cueAngle),

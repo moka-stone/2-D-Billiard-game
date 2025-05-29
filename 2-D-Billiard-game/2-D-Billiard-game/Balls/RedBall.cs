@@ -1,4 +1,4 @@
-﻿using SFML.Graphics;
+using SFML.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace _2_D_Billiard_game.Balls
 {
-    public class DefaultBall : Ball
+    public class RedBall : Ball
     {
-        public DefaultBall(float x, float y, float radius, Color color) : base(x, y, radius, color)
+        public RedBall(float x, float y, float radius) : base(x, y, radius, Color.Red)
         {
         }
     }
-}
+} 

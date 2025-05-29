@@ -1,0 +1,17 @@
+﻿using SFML.System;
+using SFML.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _2_D_Billiard_game.Balls
+{
+    public class BlackBall : Ball
+    {
+        public BlackBall(float x, float y, float radius) : base(x, y, radius, Color.Black)
+        {
+        }
+    }
+}

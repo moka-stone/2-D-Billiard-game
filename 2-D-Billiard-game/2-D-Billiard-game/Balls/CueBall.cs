@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace _2_D_Billiard_game.Balls
 {
-    public class WhiteBall : Ball
+    public class CueBall : Ball
     {
-        public WhiteBall(float x, float y, float radius) : base(x, y, radius, Color.White)
+        public CueBall(float x, float y, float radius) : base(x, y, radius, Color.White)
         {
         }
 
