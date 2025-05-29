@@ -21,8 +21,8 @@ namespace _2_D_Billiard_game.BilliardField
         private const int posx = 150;
         private const int posy = 100;
 
-        private float cueAngle; // Угол кийа
-        private float hitStrength; // Сила удара
+        private float cueAngle; // 
+        private float hitStrength; //
         private bool isSelectingStrength; // 
         private int currentWhiteBall = 1;
 
@@ -42,10 +42,10 @@ namespace _2_D_Billiard_game.BilliardField
             hitStrength = 0f;
             isSelectingStrength = false;
             //Font
-            font = new SFML.Graphics.Font("Resources/shrift.ttf"); // Укажите путь к вашему шрифту
+            font = new SFML.Graphics.Font("Resources/shrift.ttf");
             strengthText = new SFML.Graphics.Text("Strength: 0", font, 20)
             {
-                Position = new Vector2f(posx - 100, posy - 50), // Укажите позицию текста
+                Position = new Vector2f(posx - 100, posy - 50), 
                 FillColor = new Color(0, 255, 255)
             }
             ;
@@ -57,6 +57,7 @@ namespace _2_D_Billiard_game.BilliardField
             _shape = new RectangleShape(new Vector2f(width, height))
             {
                 FillColor = Color.Green,
+                //Texture = new Texture("Resources/BilliardTable.jpg"),
                 Position = new Vector2f(posx,posy)
             };
 
@@ -182,8 +183,8 @@ namespace _2_D_Billiard_game.BilliardField
             cueStart.X += 15;
             cueStart.Y += 15;
 
-            Vector2f cueEnd = cueStart + new Vector2f(200 * (float)Math.Cos((float)(Math.PI / 180) * cueAngle),
-                                                          200 * (float)Math.Sin((float)(Math.PI / 180) * cueAngle));
+            Vector2f cueEnd = cueStart + new Vector2f(400 * (float)Math.Cos((float)(Math.PI / 180) * cueAngle),
+                                                          400 * (float)Math.Sin((float)(Math.PI / 180) * cueAngle));
                 VertexArray cueLine = new VertexArray(PrimitiveType.Lines, 2)
                 {
                     [0] = new Vertex(cueStart, Color.White),

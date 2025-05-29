@@ -44,7 +44,7 @@ class Program
         Sprite backgroundSprite = new Sprite(backgroundTexture);
 
         // Icon
-        Image icon = new Image("Resources/Moka.jpg");
+        Image icon = new Image("Resources/Mok2.jpg");
         window.SetIcon(icon.Size.X, icon.Size.Y, icon.Pixels);
 
         window.Closed += (sender, e) => window.Close();
@@ -55,7 +55,7 @@ class Program
         // Music
         SoundBuffer gamsondbuf = new SoundBuffer("Resources/temporary.mp3");
         Sound gameMusic = new Sound(gamsondbuf);
-        gameMusic.Volume = 10;
+        gameMusic.Volume = 5;
         gameMusic.Play();
 
         while (window.IsOpen)

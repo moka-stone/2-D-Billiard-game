@@ -16,6 +16,9 @@
     <None Update="Resources\background.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\BilliardTable.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\birdnest.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -25,7 +28,7 @@
     <None Update="Resources\iconmakaron.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Moka.jpg">
+    <None Update="Resources\Mok2.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\shrift.ttf">
