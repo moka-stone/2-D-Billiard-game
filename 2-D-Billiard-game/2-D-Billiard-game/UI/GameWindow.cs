@@ -39,6 +39,7 @@ namespace _2_D_Billiard_game.UI
         public float cueAngle;
         public bool isPlacingWhiteBall;
         public bool areBallsMoving;
+        public bool shotMade;
         public Vector2f mousePosition;
         public float hitStrength;
 
@@ -97,6 +98,14 @@ namespace _2_D_Billiard_game.UI
             this.backgroundSprite = new Sprite(backgroundTexture);
             this.collisionSoundBuffer = new SoundBuffer("Resources/soundcollision.wav");
             this.collisionSound = new Sound(collisionSoundBuffer);
+
+            // Initialize game music
+            SoundBuffer gameMusicBuffer = new SoundBuffer("Resources/temporary.mp3");
+            this.gameMusic = new Sound(gameMusicBuffer);
+            this.gameMusic.Volume = 5;
+            this.gameMusic.Loop = true;
+            this.gameMusic.Play();
+
             //Font
             this.font = new SFML.Graphics.Font("Resources/shrift.ttf");
             this.strengthText = new SFML.Graphics.Text("Strength: 0", font, 20)
@@ -130,9 +139,11 @@ namespace _2_D_Billiard_game.UI
             foreach (var ball in _balls) // Balls
             {
                 ball.Draw(window);
-
             }       
-            DrawCue(window);
+            if (!areBallsMoving && !isPlacingWhiteBall)
+            {
+                DrawCue(window);
+            }
             window.Draw(strengthText); // Text
         }
         private void DrawCue(RenderWindow window)
@@ -153,6 +164,7 @@ namespace _2_D_Billiard_game.UI
         }
         public void Render()
         {
+            window.Clear(Color.Black);
             window.Draw(backgroundSprite);
             window.Draw(player1ScoreText);
             window.Draw(player2ScoreText);
@@ -177,7 +189,7 @@ namespace _2_D_Billiard_game.UI
                 FillColor = Color.White
             };
 
-            currentTurnText = new SFML.Graphics.Text("", font, 24)
+            currentTurnText = new SFML.Graphics.Text("Current Turn: " + player1.Name, font, 24)
             {
                 Position = new Vector2f(centerX - 200, 40),
                 FillColor = Color.Yellow
@@ -228,7 +240,8 @@ namespace _2_D_Billiard_game.UI
                                                     (float)Math.Sin((float)(Math.PI / 180) * cueAngle));
                 hitDirection.Normalize();
                 hitDirection *= 5;
-                whiteBall.Velocity += hitDirection * hitStrength;             
+                whiteBall.Velocity += hitDirection * hitStrength;
+                shotMade = true;
             }
             hitStrength = 0;
         }

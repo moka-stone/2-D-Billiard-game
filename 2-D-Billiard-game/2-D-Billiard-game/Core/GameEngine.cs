@@ -17,21 +17,35 @@ namespace _2_D_Billiard_game.Core
     public class GameEngine
     {
         private GameWindow gameWindow;
-       
         private Clock clock;
         private InputHandler inputHandler;
         public Random random = new Random();
+
+        private bool areBallTypesAssigned = false;
+        private Player currentPlayer;
+        private Player otherPlayer;
+        public event Action<BallType> BallTypeAssigned;
 
         public GameEngine(GameWindow gameWindow)
         {
             this.gameWindow = gameWindow;                   
             clock = new Clock();
-            inputHandler = new InputHandler();         
-                                         
+            inputHandler = new InputHandler();
+            currentPlayer = gameWindow.player1;
+            otherPlayer = gameWindow.player2;
+            UpdateTurnDisplay();
         }
 
-        
-
+        private void UpdateTurnDisplay()
+        {
+            string ballTypeText = "";
+            if (areBallTypesAssigned)
+            {
+                ballTypeText = currentPlayer.AssignedBallType == BallType.Red ? " (Red)" : " (Orange)";
+            }
+            gameWindow.currentTurnText.DisplayedString = $"Current Turn: {currentPlayer.Name}{ballTypeText}";
+            gameWindow.currentTurnText.FillColor = Color.Yellow;
+        }
 
         public void Run()
         {
@@ -70,6 +84,7 @@ namespace _2_D_Billiard_game.Core
                 if (ball.Velocity.X != 0 || ball.Velocity.Y != 0)
                 {
                     anyBallMoving = true;
+                    gameWindow.areBallsMoving = true;
                 }
 
                 foreach (var hole in gameWindow._holes)
@@ -86,22 +101,26 @@ namespace _2_D_Billiard_game.Core
                         {
                             gameWindow.isPlacingWhiteBall = true;
                             ball.Velocity = new Vector2f(0, 0);
-                            ball.Shape.Position = new Vector2f(gameWindow._field.Shape.Position.X + gameWindow._field.Shape.Size.X / 4, gameWindow._field.Shape.Position.Y + gameWindow._field.Shape.Size.Y / 2);                           
+                            ball.Shape.Position = new Vector2f(gameWindow._field.Shape.Position.X + gameWindow._field.Shape.Size.X / 4, gameWindow._field.Shape.Position.Y + gameWindow._field.Shape.Size.Y / 2);
+                            SwitchTurn();
+                            gameWindow.gameStatusText.DisplayedString = "White ball potted - switching turn";
                         }
                         else if (ball is BlackBall)
                         {
-                            //HandleBlackBallPotted();
+                            HandleBlackBallPotted();
                         }
                         else
                         {
                             if (!areBallTypesAssigned)
                             {
-                                pottedOwnBall = true; // Первый забитый шар всегда считается своим
+                                pottedOwnBall = true;
+                                gameWindow.gameStatusText.DisplayedString = "First ball potted - assigning types";
                             }
                             else if ((ball is RedBall && currentPlayer.AssignedBallType == BallType.Red) ||
                                     (ball is OrangeBall && currentPlayer.AssignedBallType == BallType.Orange))
                             {
                                 pottedOwnBall = true;
+                                gameWindow.gameStatusText.DisplayedString = "Potted own ball - keeping turn";
                             }
                             HandleColoredBallPotted(ball);
                             ballsToRemove.Add(ball);
@@ -110,8 +129,35 @@ namespace _2_D_Billiard_game.Core
                 }
             }
 
-            
+            // Проверяем окончание движения шаров
+            if (!anyBallMoving && gameWindow.areBallsMoving)
+            {
+                gameWindow.areBallsMoving = false;
 
+                // Проверяем был ли сделан удар
+                if (gameWindow.shotMade)
+                {
+                    // Сбрасываем флаг удара
+                    gameWindow.shotMade = false;
+
+                    // Если шары не назначены и не было забито шаров
+                    if (!areBallTypesAssigned && !anyBallPotted)
+                    {
+                        SwitchTurn();
+                        gameWindow.gameStatusText.DisplayedString = "No balls potted - switching turn (types not assigned)";
+                    }
+                    // Если шары назначены
+                    else if (areBallTypesAssigned)
+                    {
+                        // Если не забил свой шар
+                        if (!pottedOwnBall)
+                        {
+                            SwitchTurn();
+                            gameWindow.gameStatusText.DisplayedString = "No own balls potted - switching turn";
+                        }
+                    }
+                }
+            }
 
             foreach (var ball in ballsToRemove)
             {
@@ -130,6 +176,7 @@ namespace _2_D_Billiard_game.Core
                 }
             }
             gameWindow.strengthText.DisplayedString = $"Strength: {gameWindow.hitStrength:F1}";
+            UpdateScoreDisplay();
         }
 
         private void HandleCollision(Ball ballA, Ball ballB)
@@ -179,12 +226,10 @@ namespace _2_D_Billiard_game.Core
             gameWindow.collisionSound.Play(); //Sound Collision
         }
 
-
         private void HandleColoredBallPotted(Ball ball)
         {
             if (!areBallTypesAssigned)
             {
-                // Первый забитый шар определяет типы для игроков
                 if (ball is RedBall)
                 {
                     currentPlayer.AssignedBallType = BallType.Red;
@@ -198,10 +243,10 @@ namespace _2_D_Billiard_game.Core
                 areBallTypesAssigned = true;
                 BallTypeAssigned?.Invoke(currentPlayer.AssignedBallType);
                 currentPlayer.Score++;
+                UpdateTurnDisplay();
                 return;
             }
 
-            // Определяем, чей это был шар и начисляем очки
             if (ball is RedBall)
             {
                 if (currentPlayer.AssignedBallType == BallType.Red)
@@ -220,13 +265,37 @@ namespace _2_D_Billiard_game.Core
             CheckIfAllBallsPotted();
         }
 
+        private void HandleBlackBallPotted()
+        {
+            bool currentPlayerWins = false;
+            
+            if (currentPlayer.Score == 7 && otherPlayer.Score == 7)
+            {
+                currentPlayerWins = true;
+            }
+            else if (currentPlayer.Score == 7)
+            {
+                currentPlayerWins = true;
+            }
 
-
+            if (currentPlayerWins)
+            {
+                gameWindow.gameStatusText.DisplayedString = $"{currentPlayer.Name} wins!";
+            }
+            else
+            {
+                gameWindow.gameStatusText.DisplayedString = $"{otherPlayer.Name} wins!";
+            }
+            
+            // Delay before closing
+            System.Threading.Thread.Sleep(3000);
+            gameWindow.window.Close();
+        }
 
         private void CheckIfAllBallsPotted()
         {
-            int redBallsLeft = _balls.Count(b => b is RedBall);
-            int orangeBallsLeft = _balls.Count(b => b is OrangeBall);
+            int redBallsLeft = gameWindow._balls.Count(b => b is RedBall);
+            int orangeBallsLeft = gameWindow._balls.Count(b => b is OrangeBall);
 
             if (currentPlayer.AssignedBallType == BallType.Red && redBallsLeft == 0)
             {
@@ -247,25 +316,20 @@ namespace _2_D_Billiard_game.Core
             }
         }
 
-
-
-        private void OnTurnEnded()
+        private void SwitchTurn()
         {
-            player1.IsCurrentTurn = !player1.IsCurrentTurn;
-            player2.IsCurrentTurn = !player2.IsCurrentTurn;
+            var temp = currentPlayer;
+            currentPlayer = otherPlayer;
+            otherPlayer = temp;
+            UpdateTurnDisplay();
+            // Добавляем статус в gameStatusText для отладки
+            gameWindow.gameStatusText.DisplayedString = $"Turn switched to: {currentPlayer.Name}";
         }
 
-        private void OnGameWon(Player winner)
+        private void UpdateScoreDisplay()
         {
-            isGameOver = true;
-            gameStatusText.DisplayedString = $"Игра окончена! Победитель: {winner.Name}!";
-        }
-
-        private void OnBallTypeAssigned(BallType ballType)
-        {
-            string ballTypeStr = ballType == BallType.Red ? "красные" : "оранжевые";
-            gameStatusText.DisplayedString = $"{player1.Name}: {(player1.AssignedBallType == BallType.Red ? "красные" : "оранжевые")} | " +
-                                           $"{player2.Name}: {(player2.AssignedBallType == BallType.Red ? "красные" : "оранжевые")}";
+            gameWindow.player1ScoreText.DisplayedString = $"{gameWindow.player1.Name}: {gameWindow.player1.Score}";
+            gameWindow.player2ScoreText.DisplayedString = $"{gameWindow.player2.Name}: {gameWindow.player2.Score}";
         }
     }
 }
