@@ -13,6 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="SerializationPlugin">
+      <HintPath>Plugins\SerializationPlugin.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Resources\background.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

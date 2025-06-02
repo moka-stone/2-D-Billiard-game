@@ -236,7 +236,7 @@ namespace _2_D_Billiard_game.Core
                     otherPlayer.AssignedBallType = BallType.Red;
                 }
                 areBallTypesAssigned = true;
-                BallTypeAssigned?.Invoke(currentPlayer.AssignedBallType);
+                BallTypeAssigned?.Invoke(currentPlayer.AssignedBallType.Value);
                 currentPlayer.Score++;
                 UpdateTurnDisplay();
                 return;
@@ -245,16 +245,24 @@ namespace _2_D_Billiard_game.Core
             if (ball is RedBall)
             {
                 if (currentPlayer.AssignedBallType == BallType.Red)
+                {
                     currentPlayer.Score++;
+                }
                 else
+                {
                     otherPlayer.Score++;
+                }
             }
             else if (ball is OrangeBall)
             {
                 if (currentPlayer.AssignedBallType == BallType.Orange)
+                {
                     currentPlayer.Score++;
+                }
                 else
+                {
                     otherPlayer.Score++;
+                }
             }
 
             CheckIfAllBallsPotted();
@@ -268,7 +276,12 @@ namespace _2_D_Billiard_game.Core
             {
                 currentPlayerWins = true;
             }
+
             
+            currentPlayer.UpdateStats(currentPlayerWins, currentPlayer.Score);
+            otherPlayer.UpdateStats(!currentPlayerWins, otherPlayer.Score);
+            gameWindow.SavePlayerStats(currentPlayer);
+            gameWindow.SavePlayerStats(otherPlayer);
 
             if (currentPlayerWins)
             {
@@ -278,9 +291,8 @@ namespace _2_D_Billiard_game.Core
             {
                 gameWindow.gameStatusText.DisplayedString = $"{otherPlayer.Name} wins!";
             }
-            gameWindow.Render();
-            // Delay before closing
-            System.Threading.Thread.Sleep(3000);
+            gameWindow.Render();          
+            Thread.Sleep(3000);
             gameWindow.window.Close();
         }
 

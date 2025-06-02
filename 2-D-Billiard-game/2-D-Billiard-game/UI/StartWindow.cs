@@ -3,6 +3,8 @@ using SFML.System;
 using SFML.Window;
 using _2_D_Billiard_game.Models;
 using System;
+using System.IO;
+using SerializationPlugin;
 
 namespace _2_D_Billiard_game.UI
 {
@@ -17,16 +19,20 @@ namespace _2_D_Billiard_game.UI
         private Text startButtonText;
         private Text player1Label;
         private Text player2Label;
+        private Text player1Stats;
+        private Text player2Stats;
         private Font font;
         private string player1Name = "";
         private string player2Name = "";
         private bool isPlayer1Selected;
         private bool isPlayer2Selected;
+        private readonly SerializationManager serializationManager;
 
         public StartWindow()
         {
-            window = new RenderWindow(new VideoMode(800, 600), "Billiard Game - Start");
+            window = new RenderWindow(new VideoMode(800, 800), "Billiard Game - Start");
             font = new Font("Resources/shrift.ttf");
+            serializationManager = new SerializationManager("LocalPlayersSaves");
             InitializeComponents();
             SetupEventHandlers();
         }
@@ -54,7 +60,7 @@ namespace _2_D_Billiard_game.UI
             // Кнопка старта
             startButton = new RectangleShape(new Vector2f(200, 50))
             {
-                Position = new Vector2f(300, 400),
+                Position = new Vector2f(300, 600),
                 FillColor = new Color(0, 100, 0),
                 OutlineColor = Color.White,
                 OutlineThickness = 2
@@ -85,6 +91,19 @@ namespace _2_D_Billiard_game.UI
                 FillColor = Color.White
             };
 
+            // Статистика игроков
+            player1Stats = new Text("", font, 18)
+            {
+                Position = new Vector2f(50, 320),
+                FillColor = Color.Yellow
+            };
+
+            player2Stats = new Text("", font, 18)
+            {
+                Position = new Vector2f(550, 320),
+                FillColor = Color.Yellow
+            };
+
             startButtonText = new Text("Start Game", font, 24)
             {
                 FillColor = Color.White
@@ -96,6 +115,28 @@ namespace _2_D_Billiard_game.UI
                 startButton.Position.X + (startButton.Size.X - bounds.Width) / 2,
                 startButton.Position.Y + (startButton.Size.Y - bounds.Height) / 2
             );
+        }
+
+        private void UpdatePlayerStats(string playerName, Text statsText)
+        {
+            if (string.IsNullOrWhiteSpace(playerName))
+            {
+                statsText.DisplayedString = "";
+                return;
+            }
+
+            var playerData = serializationManager.LoadPlayer(playerName, "xml");
+            if (playerData != null)
+            {
+                statsText.DisplayedString = $"Игр сыграно: {playerData.TotalGames}\n" +
+                                         $"Побед: {playerData.TotalWins}\n" +
+                                         $"Процент побед: {playerData.WinRate:F1}%\n" +
+                                         $"Шаров забито: {playerData.TotalBallsPotted}";
+            }
+            else
+            {
+                statsText.DisplayedString = "Новый игрок";
+            }
         }
 
         private void SetupEventHandlers()
@@ -134,10 +175,12 @@ namespace _2_D_Billiard_game.UI
                 if (isPlayer1Selected)
                 {
                     HandleTextInput(e.Unicode, ref player1Name, player1Text);
+                    UpdatePlayerStats(player1Name, player1Stats);
                 }
                 else if (isPlayer2Selected)
                 {
                     HandleTextInput(e.Unicode, ref player2Name, player2Text);
+                    UpdatePlayerStats(player2Name, player2Stats);
                 }
             };
         }
@@ -169,6 +212,8 @@ namespace _2_D_Billiard_game.UI
                 window.Draw(player2Label);
                 window.Draw(player1Text);
                 window.Draw(player2Text);
+                window.Draw(player1Stats);
+                window.Draw(player2Stats);
                 window.Draw(startButtonText);
 
                 window.Display();
@@ -176,7 +221,41 @@ namespace _2_D_Billiard_game.UI
 
             if (!string.IsNullOrWhiteSpace(player1Name) && !string.IsNullOrWhiteSpace(player2Name))
             {
-                return (new Player(player1Name), new Player(player2Name));
+                Player player1, player2;
+
+                var player1Data = serializationManager.LoadPlayer(player1Name, "xml");
+                if (player1Data != null)
+                {
+                    player1 = new Player(player1Name)
+                    {
+                        TotalGames = player1Data.TotalGames,
+                        TotalWins = player1Data.TotalWins,
+                        TotalBallsPotted = player1Data.TotalBallsPotted
+                    };
+                }
+                else
+                {
+                    player1 = new Player(player1Name);
+                }
+
+                var player2Data = serializationManager.LoadPlayer(player2Name, "xml");
+                if (player2Data != null)
+                {
+                    player2 = new Player(player2Name)
+                    {
+                        TotalGames = player2Data.TotalGames,
+                        TotalWins = player2Data.TotalWins,
+                        TotalBallsPotted = player2Data.TotalBallsPotted
+                    };
+                }
+                else
+                {
+                    player2 = new Player(player2Name);
+                }
+
+                player1.ResetGameStats();
+                player2.ResetGameStats();
+                return (player1, player2);
             }
 
             return null;

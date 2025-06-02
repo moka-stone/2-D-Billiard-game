@@ -11,7 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
+using System.IO;
+using SerializationPlugin;
 
 namespace _2_D_Billiard_game.UI
 {
@@ -46,14 +47,59 @@ namespace _2_D_Billiard_game.UI
 
         public Player player1;
         public Player player2;
+        private readonly SerializationManager _serializationManager;
         public GameWindow(Player player1, Player player2) 
         {
             this.player1 = player1;
             this.player2 = player2;
+            _serializationManager = new SerializationManager("LocalPlayersSaves");
+
             LoadResources();
             InitializeNewWindow(1200,600);
             InitializeScoreDisplay();
+            
+            // Загружаем статистику после инициализации дисплея
+            LoadPlayerStats(player1);
+            LoadPlayerStats(player2);
         }
+
+        // SERIALIZATION PLUGIN
+        private void LoadPlayerStats(Player player)
+        {
+            var playerData = _serializationManager.LoadPlayer(player.Name, "xml");
+            if (playerData != null)
+            {
+                player.TotalGames = playerData.TotalGames;
+                player.TotalWins = playerData.TotalWins;
+                player.TotalBallsPotted = playerData.TotalBallsPotted;
+            }
+            // Обновляем отображение статистики
+            UpdatePlayerDisplay(player);
+        }
+        private void UpdatePlayerDisplay(Player player)
+        {
+            if (player == player1 && player1ScoreText != null)
+            {
+                player1ScoreText.DisplayedString = $"{player.Name}: {player.Score} (Побед: {player.TotalWins})";
+            }
+            else if (player == player2 && player2ScoreText != null)
+            {
+                player2ScoreText.DisplayedString = $"{player.Name}: {player.Score} (Побед: {player.TotalWins})";
+            }
+        }
+        public void SavePlayerStats(Player player)
+        {
+            var playerData = new PlayerData
+            {
+                Name = player.Name,
+                TotalGames = player.TotalGames,
+                TotalWins = player.TotalWins,
+                TotalBallsPotted = player.TotalBallsPotted
+            };
+            _serializationManager.SavePlayer(playerData);
+            UpdatePlayerDisplay(player);
+        }
+        // NEXT METHODS
         public void InitializeNewWindow(int width, int height) 
         {
             
