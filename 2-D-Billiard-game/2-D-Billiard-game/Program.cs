@@ -1,4 +1,5 @@
-﻿using _2_D_Billiard_game;
+﻿using _2_D_Billiard_game.Core;
+using _2_D_Billiard_game.UI;
 using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
@@ -7,83 +8,26 @@ using _2_D_Billiard_game.BilliardField;
 
 class Program
 {
-    private static void HandleKeyboardInput(Field field)
+    public static void MainMusic() 
     {
-        // Rotating
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
-        {
-            field.RotateCue(-0.01f); 
-        }
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
-        {
-            field.RotateCue(0.01f); 
-        }
-        // Power
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
-        {
-            field.IncreaseHitStrength(0.1f); 
-        }
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
-        {
-            field.DecreaseHitStrength(0.1f); 
-        }
-        // Hit
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Enter))
-        {
-            field.PerformHit(); 
-        }
+        SoundBuffer gamesondbufer = new SoundBuffer("Resources/temporary.mp3");
+        Sound gameMusic = new Sound(gamesondbufer);
+        gameMusic.Volume = 5;
+        gameMusic.Play();
     }
     static void Main()
     {
-        // Init window
-        var window = new RenderWindow(new VideoMode(1920, 1080), "Billiard Game");
-        var field = new Field(1200, 600);
-        
-        // Background
-        Texture backgroundTexture = new Texture("Resources/background.jpg");
-        Sprite backgroundSprite = new Sprite(backgroundTexture);
+        var startWindow = new StartWindow();
+        var players = startWindow.Show();
 
-        // Icon
-        Image icon = new Image("Resources/Mok2.jpg");
-        window.SetIcon(icon.Size.X, icon.Size.Y, icon.Pixels);
-
-        window.Closed += (sender, e) => window.Close();
-
-        // Clock to update pos
-        Clock clock = new Clock();
-
-        // Music
-        SoundBuffer gamsondbuf = new SoundBuffer("Resources/temporary.mp3");
-        Sound gameMusic = new Sound(gamsondbuf);
-        gameMusic.Volume = 5;
-        gameMusic.Play();
-
-        while (window.IsOpen)
+        if (players.HasValue)
         {
-            window.DispatchEvents();
-
-            float deltaTime = clock.Restart().AsSeconds();
-
-            /*window.MouseButtonPressed += (sender, e) =>
-            {
-                if (e.Button == Mouse.Button.Left)
-                {
-                    field.OnMouseClick(new Vector2i(e.X, e.Y));
-                }
-            };*/
-
-            HandleKeyboardInput(field);
-
-            field.Update(deltaTime); // fieldUpdate-->BallsUpdate & CollisionCheck
-
-            window.Draw(backgroundSprite);
-            
-            field.Draw(window);
-           
-            window.Display();
-
+            var (player1, player2) = players.Value;
+            var gameWindow = new GameWindow(player1, player2);
+            var gameEngine = new GameEngine(gameWindow);          
+            gameEngine.Run();
+            MainMusic();
         }
-
     }
     
 }

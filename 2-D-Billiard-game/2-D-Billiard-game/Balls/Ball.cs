@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using _2_D_Billiard_game.Utils;
 
 namespace _2_D_Billiard_game.Balls
 {
@@ -26,7 +27,7 @@ namespace _2_D_Billiard_game.Balls
             Velocity = new Vector2f(0, 0);
         }
 
-        public virtual void Update(float deltaTime, RectangleShape fieldShape)
+        public virtual void Update(float deltaTime, Field fieldShape)
         {
             Shape.Position += Velocity * deltaTime; // Update position, distance=speed*time          
             float velo = VectorExtensions.Length(Velocity);
@@ -35,25 +36,25 @@ namespace _2_D_Billiard_game.Balls
             //Velocity *= Friction;// Friction
 
             // Left and right
-            if (Shape.Position.X < fieldShape.Position.X)
+            if (Shape.Position.X < fieldShape.Shape.Position.X)
             {
-                Shape.Position = new Vector2f(fieldShape.Position.X, Shape.Position.Y);
+                Shape.Position = new Vector2f(fieldShape.Shape.Position.X, Shape.Position.Y);
                 Velocity = new Vector2f(-Velocity.X, Velocity.Y); 
             }
-            else if (Shape.Position.X + Shape.Radius * 2 > fieldShape.Position.X + fieldShape.Size.X)
+            else if (Shape.Position.X + Shape.Radius * 2 > fieldShape.Shape.Position.X + fieldShape.Shape.Size.X)
             {
-                Shape.Position = new Vector2f(fieldShape.Position.X + fieldShape.Size.X - Shape.Radius * 2, Shape.Position.Y); 
+                Shape.Position = new Vector2f(fieldShape.Shape.Position.X + fieldShape.Shape.Size.X - Shape.Radius * 2, Shape.Position.Y); 
                 Velocity = new Vector2f(-Velocity.X, Velocity.Y); 
             }
             // Up and down
-            if (Shape.Position.Y < fieldShape.Position.Y)
+            if (Shape.Position.Y < fieldShape.Shape.Position.Y)
             {
-                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Position.Y);
+                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Shape.Position.Y);
                 Velocity = new Vector2f(Velocity.X, -Velocity.Y); 
             }
-            else if (Shape.Position.Y + Shape.Radius * 2 > fieldShape.Position.Y + fieldShape.Size.Y)
+            else if (Shape.Position.Y + Shape.Radius * 2 > fieldShape.Shape.Position.Y + fieldShape.Shape.Size.Y)
             {
-                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Position.Y + fieldShape.Size.Y - Shape.Radius * 2); 
+                Shape.Position = new Vector2f(Shape.Position.X, fieldShape.Shape.Position.Y + fieldShape.Shape.Size.Y - Shape.Radius * 2); 
                 Velocity = new Vector2f(Velocity.X, -Velocity.Y);
             }
  
