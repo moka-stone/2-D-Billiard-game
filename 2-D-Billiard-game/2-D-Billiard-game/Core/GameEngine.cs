@@ -75,7 +75,6 @@ namespace _2_D_Billiard_game.Core
             List<Ball> ballsToRemove = new List<Ball>();
             bool anyBallMoving = false;
             bool anyBallPotted = false;
-            bool pottedOwnBall = false;
 
             foreach (var ball in gameWindow._balls)
             {
@@ -113,13 +112,13 @@ namespace _2_D_Billiard_game.Core
                         {
                             if (!areBallTypesAssigned)
                             {
-                                pottedOwnBall = true;
+                                gameWindow.pottedOwnBallThisTurn = true;
                                 gameWindow.gameStatusText.DisplayedString = "First ball potted - assigning types";
                             }
                             else if ((ball is RedBall && currentPlayer.AssignedBallType == BallType.Red) ||
                                     (ball is OrangeBall && currentPlayer.AssignedBallType == BallType.Orange))
                             {
-                                pottedOwnBall = true;
+                                gameWindow.pottedOwnBallThisTurn = true;
                                 gameWindow.gameStatusText.DisplayedString = "Potted own ball - keeping turn";
                             }
                             HandleColoredBallPotted(ball);
@@ -137,25 +136,21 @@ namespace _2_D_Billiard_game.Core
                 // Проверяем был ли сделан удар
                 if (gameWindow.shotMade)
                 {
-                    // Сбрасываем флаг удара
-                    gameWindow.shotMade = false;
-
                     // Если шары не назначены и не было забито шаров
                     if (!areBallTypesAssigned && !anyBallPotted)
                     {
                         SwitchTurn();
                         gameWindow.gameStatusText.DisplayedString = "No balls potted - switching turn (types not assigned)";
                     }
-                    // Если шары назначены
-                    else if (areBallTypesAssigned)
+                    // Если шары назначены и не было забито своих шаров за весь удар
+                    else if (areBallTypesAssigned && !gameWindow.pottedOwnBallThisTurn)
                     {
-                        // Если не забил свой шар
-                        if (!pottedOwnBall)
-                        {
-                            SwitchTurn();
-                            gameWindow.gameStatusText.DisplayedString = "No own balls potted - switching turn";
-                        }
+                        SwitchTurn();
+                        gameWindow.gameStatusText.DisplayedString = "No own balls potted - switching turn";
                     }
+                    
+                    // Сбрасываем флаг удара
+                    gameWindow.shotMade = false;
                 }
             }
 
@@ -269,14 +264,11 @@ namespace _2_D_Billiard_game.Core
         {
             bool currentPlayerWins = false;
             
-            if (currentPlayer.Score == 7 && otherPlayer.Score == 7)
+            if (currentPlayer.Score == 7)
             {
                 currentPlayerWins = true;
             }
-            else if (currentPlayer.Score == 7)
-            {
-                currentPlayerWins = true;
-            }
+            
 
             if (currentPlayerWins)
             {
@@ -286,7 +278,7 @@ namespace _2_D_Billiard_game.Core
             {
                 gameWindow.gameStatusText.DisplayedString = $"{otherPlayer.Name} wins!";
             }
-            
+            gameWindow.Render();
             // Delay before closing
             System.Threading.Thread.Sleep(3000);
             gameWindow.window.Close();

@@ -40,6 +40,7 @@ namespace _2_D_Billiard_game.UI
         public bool isPlacingWhiteBall;
         public bool areBallsMoving;
         public bool shotMade;
+        public bool pottedOwnBallThisTurn;
         public Vector2f mousePosition;
         public float hitStrength;
 
@@ -242,6 +243,7 @@ namespace _2_D_Billiard_game.UI
                 hitDirection *= 5;
                 whiteBall.Velocity += hitDirection * hitStrength;
                 shotMade = true;
+                pottedOwnBallThisTurn = false;
             }
             hitStrength = 0;
         }
